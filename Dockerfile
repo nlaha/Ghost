@@ -24,7 +24,7 @@ RUN apk add git
 
 ENV GHOST_INSTALL /var/lib/ghost
 
-ENV GHOST_VERSION 4.5.0
+ENV GHOST_VERSION 4.5.0    
 
 RUN set -eux; \
     mkdir -p "$GHOST_INSTALL"; \
@@ -32,8 +32,9 @@ RUN set -eux; \
     \
     # Tell Ghost to listen on all ips and not prompt for additional configuration
     cd "$GHOST_INSTALL"; \
-    su-exec git clone --recurse-submodules https://github.com/nlaha/Ghost \
-    su-exec mv Ghost/* ./* \
+    git clone --recurse-submodules https://github.com/nlaha/Ghost
+
+RUN set -eux; \
     su-exec yarn install \
     # make a config.json symlink for NODE_ENV=development (and sanity check that it's correct)
     su-exec node ln -s config.production.json "$GHOST_INSTALL/config.development.json"; \
