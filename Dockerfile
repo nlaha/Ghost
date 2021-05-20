@@ -35,7 +35,7 @@ RUN git clone --recurse-submodules https://github.com/nlaha/Ghost "$GHOST_INSTAL
 
 RUN set -eux; \
     cd "$GHOST_INSTALL"; \
-    su-exec yarn global add knex-migrator grunt-cli ember-cli; \
+    yarn global add knex-migrator grunt-cli ember-cli; \
     su-exec npm install knex-migrator grunt-cli ember-cli; \
     su-exec yarn setup; \
     su-exec grunt prod; \ 
