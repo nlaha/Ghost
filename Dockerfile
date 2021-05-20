@@ -13,8 +13,6 @@ RUN apk add --no-cache \
     # add "bash" for "[["
     bash
 
-ENV NODE_ENV production
-
 ENV GHOST_CLI_VERSION 1.17.1
 RUN set -eux; \
     npm cache clean --force
@@ -36,12 +34,11 @@ RUN set -eux; \
 RUN git clone --recurse-submodules https://github.com/nlaha/Ghost "$GHOST_INSTALL"; exit 0
 
 RUN set -eux; \
+    cd "$GHOST_INSTALL"; \
     yarn global add knex-migrator grunt-cli ember-cli; \
-    cd "$GHOST_INSTALL"; \
+    npm install knex-migrator grunt-cli ember-cli; \
     npm install; \
-    npm install grunt; \
     yarn setup; \
-    cd "$GHOST_INSTALL"; \
     grunt prod; \ 
     # make a config.json symlink for NODE_ENV=development (and sanity check that it's correct)
     su-exec node ln -s config.production.json "$GHOST_INSTALL/config.development.json"; \
@@ -68,6 +65,8 @@ RUN set -eux; \
 
 WORKDIR $GHOST_INSTALL
 VOLUME $GHOST_INSTALL
+
+ENV NODE_ENV production
 
 COPY docker-entrypoint.sh /usr/local/bin
 ENTRYPOINT ["docker-entrypoint.sh"]
