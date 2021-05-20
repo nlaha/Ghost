@@ -1,30 +1,35 @@
-const _ = require('lodash');
-const debug = require('ghost-ignition').debug('api:canary:utils:serializers:input:pages');
-const mapNQLKeyValues = require('@nexes/nql').utils.mapKeyValues;
-const mobiledoc = require('../../../../../lib/mobiledoc');
-const url = require('./utils/url');
-const slugFilterOrder = require('./utils/slug-filter-order');
-const localUtils = require('../../index');
-const postsMetaSchema = require('../../../../../data/schema').tables.posts_meta;
+const _ = require("lodash");
+const debug = require("ghost-ignition").debug(
+    "api:canary:utils:serializers:input:pages"
+);
+const mapNQLKeyValues = require("@nexes/nql").utils.mapKeyValues;
+const mobiledoc = require("../../../../../lib/mobiledoc");
+const url = require("./utils/url");
+const slugFilterOrder = require("./utils/slug-filter-order");
+const localUtils = require("../../index");
+const postsMetaSchema = require("../../../../../data/schema").tables.posts_meta;
 
 const replacePageWithType = mapNQLKeyValues({
     key: {
-        from: 'page',
-        to: 'type'
+        from: "page",
+        to: "type",
     },
-    values: [{
-        from: false,
-        to: 'post'
-    }, {
-        from: true,
-        to: 'page'
-    }]
+    values: [
+        {
+            from: false,
+            to: "post",
+        },
+        {
+            from: true,
+            to: "page",
+        },
+    ],
 });
 
 function removeMobiledocFormat(frame) {
-    if (frame.options.formats && frame.options.formats.includes('mobiledoc')) {
+    if (frame.options.formats && frame.options.formats.includes("mobiledoc")) {
         frame.options.formats = frame.options.formats.filter((format) => {
-            return (format !== 'mobiledoc');
+            return format !== "mobiledoc";
         });
     }
 }
@@ -38,29 +43,45 @@ function defaultRelations(frame) {
         return false;
     }
 
-    frame.options.withRelated = ['tags', 'authors', 'authors.roles'];
+    frame.options.withRelated = ["tags", "authors", "authors.roles"];
 }
 
 function setDefaultOrder(frame) {
     let includesOrderedRelations = false;
 
     if (frame.options.withRelated) {
-        const orderedRelations = ['author', 'authors', 'tag', 'tags'];
-        includesOrderedRelations = _.intersection(orderedRelations, frame.options.withRelated).length > 0;
+        const orderedRelations = ["author", "authors", "tag", "tags"];
+        includesOrderedRelations =
+            _.intersection(orderedRelations, frame.options.withRelated).length >
+            0;
     }
 
-    if (!frame.options.order && !includesOrderedRelations && frame.options.filter) {
-        frame.options.autoOrder = slugFilterOrder('posts', frame.options.filter);
+    if (
+        !frame.options.order &&
+        !includesOrderedRelations &&
+        frame.options.filter
+    ) {
+        frame.options.autoOrder = slugFilterOrder(
+            "posts",
+            frame.options.filter
+        );
     }
 
-    if (!frame.options.order && !frame.options.autoOrder && !includesOrderedRelations) {
-        frame.options.order = 'title asc';
+    if (
+        !frame.options.order &&
+        !frame.options.autoOrder &&
+        !includesOrderedRelations
+    ) {
+        frame.options.order = "title asc";
     }
 }
 
 function forceVisibilityColumn(frame) {
-    if (frame.options.columns && !frame.options.columns.includes('visibility')) {
-        frame.options.columns.push('visibility');
+    if (
+        frame.options.columns &&
+        !frame.options.columns.includes("visibility")
+    ) {
+        frame.options.columns.push("visibility");
     }
 }
 
@@ -69,11 +90,11 @@ function defaultFormat(frame) {
         return;
     }
 
-    frame.options.formats = 'mobiledoc';
+    frame.options.formats = "mobiledoc";
 }
 
 function handlePostsMeta(frame) {
-    let metaAttrs = _.keys(_.omit(postsMetaSchema, ['id', 'post_id']));
+    let metaAttrs = _.keys(_.omit(postsMetaSchema, ["id", "post_id"]));
     let meta = _.pick(frame.data.pages[0], metaAttrs);
     frame.data.pages[0].posts_meta = meta;
 }
@@ -90,13 +111,13 @@ const forcePageFilter = (frame) => {
     if (frame.options.filter) {
         frame.options.filter = `(${frame.options.filter})+type:page`;
     } else {
-        frame.options.filter = 'type:page';
+        frame.options.filter = "type:page";
     }
 };
 
 const forceStatusFilter = (frame) => {
     if (!frame.options.filter) {
-        frame.options.filter = 'status:[draft,published,scheduled]';
+        frame.options.filter = "status:[draft,published,scheduled]";
     } else if (!frame.options.filter.match(/status:/)) {
         frame.options.filter = `(${frame.options.filter})+status:[draft,published,scheduled]`;
     }
@@ -104,7 +125,7 @@ const forceStatusFilter = (frame) => {
 
 module.exports = {
     browse(apiConfig, frame) {
-        debug('browse');
+        debug("browse");
 
         forcePageFilter(frame);
 
@@ -124,7 +145,7 @@ module.exports = {
     },
 
     read(apiConfig, frame) {
-        debug('read');
+        debug("read");
 
         forcePageFilter(frame);
 
@@ -141,22 +162,27 @@ module.exports = {
         }
     },
 
-    add(apiConfig, frame, options = {add: true}) {
-        debug('add');
+    add(apiConfig, frame, options = { add: true }) {
+        debug("add");
 
-        if (_.get(frame,'options.source')) {
+        if (_.get(frame, "options.source")) {
             const html = frame.data.pages[0].html;
 
-            if (frame.options.source === 'html' && !_.isEmpty(html)) {
-                frame.data.pages[0].mobiledoc = JSON.stringify(mobiledoc.htmlToMobiledocConverter(html));
+            if (frame.options.source === "html" && !_.isEmpty(html)) {
+                frame.data.pages[0].mobiledoc = JSON.stringify(
+                    mobiledoc.htmlToMobiledocConverter(html)
+                );
             }
         }
 
-        frame.data.pages[0] = url.forPost(Object.assign({}, frame.data.pages[0]), frame.options);
+        frame.data.pages[0] = url.forPost(
+            Object.assign({}, frame.data.pages[0]),
+            frame.options
+        );
 
         // @NOTE: force storing page
         if (options.add) {
-            frame.data.pages[0].type = 'page';
+            frame.data.pages[0].type = "page";
         }
 
         // CASE: Transform short to long format
@@ -164,7 +190,7 @@ module.exports = {
             frame.data.pages[0].authors.forEach((author, index) => {
                 if (_.isString(author)) {
                     frame.data.pages[0].authors[index] = {
-                        email: author
+                        email: author,
                     };
                 }
             });
@@ -174,7 +200,7 @@ module.exports = {
             frame.data.pages[0].tags.forEach((tag, index) => {
                 if (_.isString(tag)) {
                     frame.data.pages[0].tags[index] = {
-                        name: tag
+                        name: tag,
                     };
                 }
             });
@@ -186,8 +212,8 @@ module.exports = {
     },
 
     edit(apiConfig, frame) {
-        debug('edit');
-        this.add(...arguments, {add: false});
+        debug("edit");
+        this.add(...arguments, { add: false });
 
         handlePostsMeta(frame);
         forceStatusFilter(frame);
@@ -195,14 +221,14 @@ module.exports = {
     },
 
     destroy(apiConfig, frame) {
-        debug('destroy');
+        debug("destroy");
 
         frame.options.destroyBy = {
             id: frame.options.id,
-            type: 'page'
+            type: "page",
         };
 
         defaultFormat(frame);
         defaultRelations(frame);
-    }
+    },
 };

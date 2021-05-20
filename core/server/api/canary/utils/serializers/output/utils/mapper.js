@@ -1,12 +1,13 @@
-const _ = require('lodash');
-const utils = require('../../../index');
-const url = require('./url');
-const date = require('./date');
-const gating = require('./post-gating');
-const clean = require('./clean');
-const extraAttrs = require('./extra-attrs');
-const postsMetaSchema = require('../../../../../../data/schema').tables.posts_meta;
-const mega = require('../../../../../../services/mega');
+const _ = require("lodash");
+const utils = require("../../../index");
+const url = require("./url");
+const date = require("./date");
+const gating = require("./post-gating");
+const clean = require("./clean");
+const extraAttrs = require("./extra-attrs");
+const postsMetaSchema = require("../../../../../../data/schema").tables
+    .posts_meta;
+const mega = require("../../../../../../services/mega");
 
 const mapUser = (model, frame) => {
     const jsonModel = model.toJSON ? model.toJSON(frame.options) : model;
@@ -29,7 +30,7 @@ const mapTag = (model, frame) => {
 
 const mapPost = (model, frame) => {
     const extendedOptions = Object.assign(_.cloneDeep(frame.options), {
-        extraProperties: ['canonical_url']
+        extraProperties: ["canonical_url"],
     });
 
     const jsonModel = model.toJSON(extendedOptions);
@@ -40,7 +41,7 @@ const mapPost = (model, frame) => {
 
     if (utils.isContentAPI(frame)) {
         // Content api v2 still expects page prop
-        if (jsonModel.type === 'page') {
+        if (jsonModel.type === "page" || jsonModel.type === "galleryimage") {
             jsonModel.page = true;
         }
         date.forPost(jsonModel);
@@ -54,31 +55,40 @@ const mapPost = (model, frame) => {
             // @NOTE: this block also decorates primary_tag/primary_author objects as they
             // are being passed by reference in tags/authors. Might be refactored into more explicit call
             // in the future, but is good enough for current use-case
-            if (relation === 'tags' && jsonModel.tags) {
-                jsonModel.tags = jsonModel.tags.map(tag => mapTag(tag, frame));
+            if (relation === "tags" && jsonModel.tags) {
+                jsonModel.tags = jsonModel.tags.map((tag) =>
+                    mapTag(tag, frame)
+                );
             }
 
-            if (relation === 'authors' && jsonModel.authors) {
-                jsonModel.authors = jsonModel.authors.map(author => mapUser(author, frame));
+            if (relation === "authors" && jsonModel.authors) {
+                jsonModel.authors = jsonModel.authors.map((author) =>
+                    mapUser(author, frame)
+                );
             }
 
-            if (relation === 'email' && jsonModel.email) {
+            if (relation === "email" && jsonModel.email) {
                 jsonModel.email = mapEmail(jsonModel.email, frame);
             }
 
-            if (relation === 'email' && _.isEmpty(jsonModel.email)) {
+            if (relation === "email" && _.isEmpty(jsonModel.email)) {
                 jsonModel.email = null;
             }
         });
     }
 
     // Transforms post/page metadata to flat structure
-    let metaAttrs = _.keys(_.omit(postsMetaSchema, ['id', 'post_id']));
-    _(metaAttrs).filter((k) => {
-        return (!frame.options.columns || (frame.options.columns && frame.options.columns.includes(k)));
-    }).each((attr) => {
-        jsonModel[attr] = _.get(jsonModel.posts_meta, attr) || null;
-    });
+    let metaAttrs = _.keys(_.omit(postsMetaSchema, ["id", "post_id"]));
+    _(metaAttrs)
+        .filter((k) => {
+            return (
+                !frame.options.columns ||
+                (frame.options.columns && frame.options.columns.includes(k))
+            );
+        })
+        .each((attr) => {
+            jsonModel[attr] = _.get(jsonModel.posts_meta, attr) || null;
+        });
     delete jsonModel.posts_meta;
 
     return jsonModel;
@@ -102,25 +112,30 @@ const mapSettings = (attrs, frame) => {
     //      `forSettings` step. This logic can be rewritten once we get rid of deprecated
     //      fields completely.
     if (_.isArray(attrs)) {
-        const keysToFilter = ['ghost_head', 'ghost_foot'];
+        const keysToFilter = ["ghost_head", "ghost_foot"];
 
         // NOTE: to support edits of deprecated 'slack' setting artificial 'slack_url' and 'slack_username'
         //       were added to the request body in the input serializer. These should not be returned in response
         //       body unless directly requested
         if (frame.original.body && frame.original.body.settings) {
-            const requestedEditSlackUrl = frame.original.body.settings.find(s => s.key === 'slack_url');
-            const requestedEditSlackUsername = frame.original.body.settings.find(s => s.key === 'slack_username');
+            const requestedEditSlackUrl = frame.original.body.settings.find(
+                (s) => s.key === "slack_url"
+            );
+            const requestedEditSlackUsername =
+                frame.original.body.settings.find(
+                    (s) => s.key === "slack_username"
+                );
 
             if (!requestedEditSlackUrl) {
-                keysToFilter.push('slack_url');
+                keysToFilter.push("slack_url");
             }
 
             if (!requestedEditSlackUsername) {
-                keysToFilter.push('slack_username');
+                keysToFilter.push("slack_username");
             }
         }
 
-        attrs = _.filter(attrs, attr => !(keysToFilter.includes(attr.key)));
+        attrs = _.filter(attrs, (attr) => !keysToFilter.includes(attr.key));
     }
 
     return attrs;
@@ -131,7 +146,7 @@ const mapIntegration = (model, frame) => {
 
     if (jsonModel.api_keys) {
         jsonModel.api_keys.forEach((key) => {
-            if (key.type === 'admin') {
+            if (key.type === "admin") {
                 key.secret = `${key.id}:${key.secret}`;
             }
         });
@@ -164,7 +179,7 @@ const mapEmail = (model, frame) => {
     replacements.forEach((replacement) => {
         jsonModel[replacement.format] = jsonModel[replacement.format].replace(
             replacement.match,
-            replacement.fallback || ''
+            replacement.fallback || ""
         );
     });
 

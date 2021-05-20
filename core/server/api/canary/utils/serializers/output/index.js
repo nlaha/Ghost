@@ -1,133 +1,137 @@
 module.exports = {
     get all() {
-        return require('./all');
+        return require("./all");
     },
 
     get authentication() {
-        return require('./authentication');
+        return require("./authentication");
     },
 
     get db() {
-        return require('./db');
+        return require("./db");
     },
 
     get integrations() {
-        return require('./integrations');
+        return require("./integrations");
     },
 
     get pages() {
-        return require('./pages');
+        return require("./pages");
+    },
+
+    get galleryimages() {
+        return require("./galleryimages");
     },
 
     get redirects() {
-        return require('./redirects');
+        return require("./redirects");
     },
 
     get roles() {
-        return require('./roles');
+        return require("./roles");
     },
 
     get slugs() {
-        return require('./slugs');
+        return require("./slugs");
     },
 
     get schedules() {
-        return require('./schedules');
+        return require("./schedules");
     },
 
     get webhooks() {
-        return require('./webhooks');
+        return require("./webhooks");
     },
 
     get posts() {
-        return require('./posts');
+        return require("./posts");
     },
 
     get invites() {
-        return require('./invites');
+        return require("./invites");
     },
 
     get settings() {
-        return require('./settings');
+        return require("./settings");
     },
 
     get notifications() {
-        return require('./notifications');
+        return require("./notifications");
     },
 
     get mail() {
-        return require('./mail');
+        return require("./mail");
     },
 
     get members() {
-        return require('./members');
+        return require("./members");
     },
 
     get products() {
-        return require('./products');
+        return require("./products");
     },
 
     get member_signin_urls() {
-        return require('./member-signin_urls');
+        return require("./member-signin_urls");
     },
 
     get identities() {
-        return require('./identities');
+        return require("./identities");
     },
 
     get images() {
-        return require('./images');
+        return require("./images");
     },
 
     get tags() {
-        return require('./tags');
+        return require("./tags");
     },
 
     get users() {
-        return require('./users');
+        return require("./users");
     },
 
     get preview() {
-        return require('./preview');
+        return require("./preview");
     },
 
     get oembed() {
-        return require('./oembed');
+        return require("./oembed");
     },
 
     get authors() {
-        return require('./authors');
+        return require("./authors");
     },
 
     get config() {
-        return require('./config');
+        return require("./config");
     },
 
     get themes() {
-        return require('./themes');
+        return require("./themes");
     },
 
     get actions() {
-        return require('./actions');
+        return require("./actions");
     },
 
     get site() {
-        return require('./site');
+        return require("./site");
     },
 
     get email_preview() {
-        return require('./email-preview');
+        return require("./email-preview");
     },
 
     get emails() {
-        return require('./emails');
+        return require("./emails");
     },
 
     get labels() {
-        return require('./labels');
+        return require("./labels");
     },
 
     get snippets() {
-        return require('./snippets');
-    }
+        return require("./snippets");
+    },
 };

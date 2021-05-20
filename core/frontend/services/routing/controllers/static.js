@@ -1,26 +1,32 @@
-const _ = require('lodash');
-const Promise = require('bluebird');
-const debug = require('ghost-ignition').debug('services:routing:controllers:static');
-const helpers = require('../helpers');
+const _ = require("lodash");
+const Promise = require("bluebird");
+const debug = require("ghost-ignition").debug(
+    "services:routing:controllers:static"
+);
+const helpers = require("../helpers");
 
 function processQuery(query, locals) {
-    const api = require('../../../../server/api')[locals.apiVersion];
+    const api = require("../../../../server/api")[locals.apiVersion];
     query = _.cloneDeep(query);
 
     // CASE: If you define a single data key for a static route (e.g. data: page.team), this static route will represent
     //       the target resource. That means this static route has to behave the same way than the original resource url.
     //       e.g. the meta data package needs access to the full resource including relations.
     //       We override the `include` property for now, because the full data set is required anyway.
-    if (_.get(query, 'resource') === 'posts' || _.get(query, 'resource') === 'pages') {
+    if (
+        _.get(query, "resource") === "posts" ||
+        _.get(query, "resource") === "pages" ||
+        _.get(query, "resource") === "galleryimages"
+    ) {
         _.extend(query.options, {
-            include: 'authors,tags'
+            include: "authors,tags",
         });
     }
 
     Object.assign(query.options, {
         context: {
-            member: locals.member
-        }
+            member: locals.member,
+        },
     });
 
     return api[query.controller][query.type](query.options);
@@ -34,7 +40,7 @@ function processQuery(query, locals) {
  * @returns {Promise}
  */
 module.exports = function staticController(req, res, next) {
-    debug('staticController', res.routerOptions);
+    debug("staticController", res.routerOptions);
 
     let props = {};
 
@@ -52,10 +58,11 @@ module.exports = function staticController(req, res, next) {
                 _.each(res.routerOptions.data, function (config, name) {
                     response.data[name] = result[name][config.resource];
 
-                    if (config.type === 'browse') {
+                    if (config.type === "browse") {
                         response.data[name].meta = result[name].meta;
                         // @TODO: remove in Ghost 3.0 (see https://github.com/TryGhost/Ghost/issues/10434)
-                        response.data[name][config.resource] = result[name][config.resource];
+                        response.data[name][config.resource] =
+                            result[name][config.resource];
                     }
                 });
             }
@@ -65,7 +72,11 @@ module.exports = function staticController(req, res, next) {
                 helpers.secure(req, data);
             });
 
-            helpers.renderer(req, res, helpers.formatResponse.entries(response));
+            helpers.renderer(
+                req,
+                res,
+                helpers.formatResponse.entries(response)
+            );
         })
         .catch(helpers.handleError(next));
 };

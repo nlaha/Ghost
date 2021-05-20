@@ -1,12 +1,12 @@
-const _ = require('lodash');
-const should = require('should');
-const sinon = require('sinon');
-const rewire = require('rewire');
-const testUtils = require('../../utils');
-const configUtils = require('../../utils/configUtils');
-const models = require('../../../core/server/models');
-const events = require('../../../core/server/lib/common/events');
-const UrlService = rewire('../../../core/frontend/services/url/UrlService');
+const _ = require("lodash");
+const should = require("should");
+const sinon = require("sinon");
+const rewire = require("rewire");
+const testUtils = require("../../utils");
+const configUtils = require("../../utils/configUtils");
+const models = require("../../../core/server/models");
+const events = require("../../../core/server/lib/common/events");
+const UrlService = rewire("../../../core/frontend/services/url/UrlService");
 
 /**
  * @NOTE
@@ -15,7 +15,7 @@ const UrlService = rewire('../../../core/frontend/services/url/UrlService');
  * and thus should check if the there is a configuration added for the new API version
  *
  */
-describe('Integration: services/url/UrlService', function () {
+describe("Integration: services/url/UrlService", function () {
     let urlService;
 
     before(function () {
@@ -23,14 +23,14 @@ describe('Integration: services/url/UrlService', function () {
     });
 
     before(testUtils.teardownDb);
-    before(testUtils.setup('users:roles', 'posts'));
+    before(testUtils.setup("users:roles", "posts"));
     after(testUtils.teardownDb);
 
     after(function () {
         sinon.restore();
     });
 
-    describe('functional: default routing set', function () {
+    describe("functional: default routing set", function () {
         let router1;
         let router2;
         let router3;
@@ -45,8 +45,8 @@ describe('Integration: services/url/UrlService', function () {
                 getResourceType: sinon.stub(),
                 getPermalinks: sinon.stub(),
                 toString: function () {
-                    return 'post collection';
-                }
+                    return "post collection";
+                },
             };
 
             router2 = {
@@ -55,8 +55,8 @@ describe('Integration: services/url/UrlService', function () {
                 getResourceType: sinon.stub(),
                 getPermalinks: sinon.stub(),
                 toString: function () {
-                    return 'authors';
-                }
+                    return "authors";
+                },
             };
 
             router3 = {
@@ -65,8 +65,8 @@ describe('Integration: services/url/UrlService', function () {
                 getResourceType: sinon.stub(),
                 getPermalinks: sinon.stub(),
                 toString: function () {
-                    return 'tags';
-                }
+                    return "tags";
+                },
             };
 
             router4 = {
@@ -75,46 +75,46 @@ describe('Integration: services/url/UrlService', function () {
                 getResourceType: sinon.stub(),
                 getPermalinks: sinon.stub(),
                 toString: function () {
-                    return 'static pages';
-                }
+                    return "static pages";
+                },
             };
 
-            router1.getFilter.returns('featured:false');
-            router1.getResourceType.returns('posts');
+            router1.getFilter.returns("featured:false");
+            router1.getResourceType.returns("posts");
             router1.getPermalinks.returns({
                 getValue: function () {
-                    return '/:slug/';
-                }
+                    return "/:slug/";
+                },
             });
 
             router2.getFilter.returns(false);
-            router2.getResourceType.returns('authors');
+            router2.getResourceType.returns("authors");
             router2.getPermalinks.returns({
                 getValue: function () {
-                    return '/author/:slug/';
-                }
+                    return "/author/:slug/";
+                },
             });
 
             router3.getFilter.returns(false);
-            router3.getResourceType.returns('tags');
+            router3.getResourceType.returns("tags");
             router3.getPermalinks.returns({
                 getValue: function () {
-                    return '/tag/:slug/';
-                }
+                    return "/tag/:slug/";
+                },
             });
 
             router4.getFilter.returns(false);
-            router4.getResourceType.returns('pages');
+            router4.getResourceType.returns("pages");
             router4.getPermalinks.returns({
                 getValue: function () {
-                    return '/:slug/';
-                }
+                    return "/:slug/";
+                },
             });
 
-            events.emit('router.created', router1);
-            events.emit('router.created', router2);
-            events.emit('router.created', router3);
-            events.emit('router.created', router4);
+            events.emit("router.created", router1);
+            events.emit("router.created", router2);
+            events.emit("router.created", router3);
+            events.emit("router.created", router4);
 
             // We can't use our url service utils here, because this is a local copy of the urlService, not the singletone
             urlService.init();
@@ -135,7 +135,7 @@ describe('Integration: services/url/UrlService', function () {
             urlService.reset();
         });
 
-        it('check url generators', function () {
+        it("check url generators", function () {
             urlService.urlGenerators.length.should.eql(4);
             urlService.urlGenerators[0].router.should.eql(router1);
             urlService.urlGenerators[1].router.should.eql(router2);
@@ -143,72 +143,102 @@ describe('Integration: services/url/UrlService', function () {
             urlService.urlGenerators[3].router.should.eql(router4);
         });
 
-        it('getUrl', function () {
+        it("getUrl", function () {
             urlService.urlGenerators.forEach(function (generator) {
-                if (generator.router.getResourceType() === 'posts') {
+                if (generator.router.getResourceType() === "posts") {
                     generator.getUrls().length.should.eql(2);
                 }
 
-                if (generator.router.getResourceType() === 'pages') {
+                if (generator.router.getResourceType() === "pages") {
                     generator.getUrls().length.should.eql(1);
                 }
 
-                if (generator.router.getResourceType() === 'tags') {
+                if (generator.router.getResourceType() === "galleryimages") {
+                    generator.getUrls().length.should.eql(1);
+                }
+
+                if (generator.router.getResourceType() === "tags") {
                     generator.getUrls().length.should.eql(3);
                 }
 
-                if (generator.router.getResourceType() === 'authors') {
+                if (generator.router.getResourceType() === "authors") {
                     generator.getUrls().length.should.eql(2);
                 }
             });
 
-            let url = urlService.getUrlByResourceId(testUtils.DataGenerator.forKnex.posts[0].id);
-            url.should.eql('/html-ipsum/');
+            let url = urlService.getUrlByResourceId(
+                testUtils.DataGenerator.forKnex.posts[0].id
+            );
+            url.should.eql("/html-ipsum/");
 
-            url = urlService.getUrlByResourceId(testUtils.DataGenerator.forKnex.posts[1].id);
-            url.should.eql('/ghostly-kitchen-sink/');
+            url = urlService.getUrlByResourceId(
+                testUtils.DataGenerator.forKnex.posts[1].id
+            );
+            url.should.eql("/ghostly-kitchen-sink/");
 
-            url = urlService.getUrlByResourceId(testUtils.DataGenerator.forKnex.posts[2].id);
-            url.should.eql('/404/');
+            url = urlService.getUrlByResourceId(
+                testUtils.DataGenerator.forKnex.posts[2].id
+            );
+            url.should.eql("/404/");
 
-            url = urlService.getUrlByResourceId(testUtils.DataGenerator.forKnex.tags[0].id);
-            url.should.eql('/tag/kitchen-sink/');
+            url = urlService.getUrlByResourceId(
+                testUtils.DataGenerator.forKnex.tags[0].id
+            );
+            url.should.eql("/tag/kitchen-sink/");
 
-            url = urlService.getUrlByResourceId(testUtils.DataGenerator.forKnex.tags[1].id);
-            url.should.eql('/tag/bacon/');
+            url = urlService.getUrlByResourceId(
+                testUtils.DataGenerator.forKnex.tags[1].id
+            );
+            url.should.eql("/tag/bacon/");
 
-            url = urlService.getUrlByResourceId(testUtils.DataGenerator.forKnex.tags[2].id);
-            url.should.eql('/tag/chorizo/');
+            url = urlService.getUrlByResourceId(
+                testUtils.DataGenerator.forKnex.tags[2].id
+            );
+            url.should.eql("/tag/chorizo/");
 
-            url = urlService.getUrlByResourceId(testUtils.DataGenerator.forKnex.tags[3].id);
-            url.should.eql('/404/'); // tags with no posts should not be public
+            url = urlService.getUrlByResourceId(
+                testUtils.DataGenerator.forKnex.tags[3].id
+            );
+            url.should.eql("/404/"); // tags with no posts should not be public
 
-            url = urlService.getUrlByResourceId(testUtils.DataGenerator.forKnex.users[0].id);
-            url.should.eql('/author/joe-bloggs/');
+            url = urlService.getUrlByResourceId(
+                testUtils.DataGenerator.forKnex.users[0].id
+            );
+            url.should.eql("/author/joe-bloggs/");
 
-            url = urlService.getUrlByResourceId(testUtils.DataGenerator.forKnex.users[1].id);
-            url.should.eql('/404/'); // users with no posts should not be public
+            url = urlService.getUrlByResourceId(
+                testUtils.DataGenerator.forKnex.users[1].id
+            );
+            url.should.eql("/404/"); // users with no posts should not be public
 
-            url = urlService.getUrlByResourceId(testUtils.DataGenerator.forKnex.users[2].id);
-            url.should.eql('/404/'); // users with no posts should not be public
+            url = urlService.getUrlByResourceId(
+                testUtils.DataGenerator.forKnex.users[2].id
+            );
+            url.should.eql("/404/"); // users with no posts should not be public
 
-            url = urlService.getUrlByResourceId(testUtils.DataGenerator.forKnex.users[3].id);
-            url.should.eql('/author/slimer-mcectoplasm/');
+            url = urlService.getUrlByResourceId(
+                testUtils.DataGenerator.forKnex.users[3].id
+            );
+            url.should.eql("/author/slimer-mcectoplasm/");
 
-            url = urlService.getUrlByResourceId(testUtils.DataGenerator.forKnex.users[4].id);
-            url.should.eql('/404/'); // users with no posts should not be public
+            url = urlService.getUrlByResourceId(
+                testUtils.DataGenerator.forKnex.users[4].id
+            );
+            url.should.eql("/404/"); // users with no posts should not be public
         });
 
-        it('getResource', function () {
-            let resource = urlService.getResource('/html-ipsum/');
-            resource.data.id.should.eql(testUtils.DataGenerator.forKnex.posts[0].id);
+        it("getResource", function () {
+            let resource = urlService.getResource("/html-ipsum/");
+            resource.data.id.should.eql(
+                testUtils.DataGenerator.forKnex.posts[0].id
+            );
 
-            resource = urlService.getResource('/does-not-exist/');
+            resource = urlService.getResource("/does-not-exist/");
             should.not.exist(resource);
         });
     });
 
-    describe('functional: extended/modified routing set', function () {
+    describe("functional: extended/modified routing set", function () {
         let router1;
         let router2;
         let router3;
@@ -216,7 +246,7 @@ describe('Integration: services/url/UrlService', function () {
         let router5;
 
         before(testUtils.teardownDb);
-        before(testUtils.setup('users:roles', 'posts'));
+        before(testUtils.setup("users:roles", "posts"));
 
         before(function () {
             urlService.resetGenerators();
@@ -231,8 +261,8 @@ describe('Integration: services/url/UrlService', function () {
                 getResourceType: sinon.stub(),
                 getPermalinks: sinon.stub(),
                 toString: function () {
-                    return 'post collection 1';
-                }
+                    return "post collection 1";
+                },
             };
 
             router2 = {
@@ -241,8 +271,8 @@ describe('Integration: services/url/UrlService', function () {
                 getResourceType: sinon.stub(),
                 getPermalinks: sinon.stub(),
                 toString: function () {
-                    return 'post collection 2';
-                }
+                    return "post collection 2";
+                },
             };
 
             router3 = {
@@ -251,8 +281,8 @@ describe('Integration: services/url/UrlService', function () {
                 getResourceType: sinon.stub(),
                 getPermalinks: sinon.stub(),
                 toString: function () {
-                    return 'authors';
-                }
+                    return "authors";
+                },
             };
 
             router4 = {
@@ -261,8 +291,8 @@ describe('Integration: services/url/UrlService', function () {
                 getResourceType: sinon.stub(),
                 getPermalinks: sinon.stub(),
                 toString: function () {
-                    return 'tags';
-                }
+                    return "tags";
+                },
             };
 
             router5 = {
@@ -271,55 +301,55 @@ describe('Integration: services/url/UrlService', function () {
                 getResourceType: sinon.stub(),
                 getPermalinks: sinon.stub(),
                 toString: function () {
-                    return 'static pages';
-                }
+                    return "static pages";
+                },
             };
 
-            router1.getFilter.returns('featured:true');
-            router1.getResourceType.returns('posts');
+            router1.getFilter.returns("featured:true");
+            router1.getResourceType.returns("posts");
             router1.getPermalinks.returns({
                 getValue: function () {
-                    return '/podcast/:slug/';
-                }
+                    return "/podcast/:slug/";
+                },
             });
 
-            router2.getFilter.returns('page:false');
-            router2.getResourceType.returns('posts');
+            router2.getFilter.returns("page:false");
+            router2.getResourceType.returns("posts");
             router2.getPermalinks.returns({
                 getValue: function () {
-                    return '/collection/:year/:slug/';
-                }
+                    return "/collection/:year/:slug/";
+                },
             });
 
             router3.getFilter.returns(false);
-            router3.getResourceType.returns('authors');
+            router3.getResourceType.returns("authors");
             router3.getPermalinks.returns({
                 getValue: function () {
-                    return '/persons/:slug/';
-                }
+                    return "/persons/:slug/";
+                },
             });
 
             router4.getFilter.returns(false);
-            router4.getResourceType.returns('tags');
+            router4.getResourceType.returns("tags");
             router4.getPermalinks.returns({
                 getValue: function () {
-                    return '/category/:slug/';
-                }
+                    return "/category/:slug/";
+                },
             });
 
             router5.getFilter.returns(false);
-            router5.getResourceType.returns('pages');
+            router5.getResourceType.returns("pages");
             router5.getPermalinks.returns({
                 getValue: function () {
-                    return '/:slug/';
-                }
+                    return "/:slug/";
+                },
             });
 
-            events.emit('router.created', router1);
-            events.emit('router.created', router2);
-            events.emit('router.created', router3);
-            events.emit('router.created', router4);
-            events.emit('router.created', router5);
+            events.emit("router.created", router1);
+            events.emit("router.created", router2);
+            events.emit("router.created", router3);
+            events.emit("router.created", router4);
+            events.emit("router.created", router5);
 
             // We can't use our url service utils here, because this is a local copy of the urlService, not the singletone
             urlService.init();
@@ -340,7 +370,7 @@ describe('Integration: services/url/UrlService', function () {
             urlService.resetGenerators();
         });
 
-        it('check url generators', function () {
+        it("check url generators", function () {
             urlService.urlGenerators.length.should.eql(5);
             urlService.urlGenerators[0].router.should.eql(router1);
             urlService.urlGenerators[1].router.should.eql(router2);
@@ -349,69 +379,99 @@ describe('Integration: services/url/UrlService', function () {
             urlService.urlGenerators[4].router.should.eql(router5);
         });
 
-        it('getUrl', function () {
+        it("getUrl", function () {
             urlService.urlGenerators.forEach(function (generator) {
-                if (generator.router.getResourceType() === 'posts' && generator.router.getFilter() === 'page:false') {
+                if (
+                    generator.router.getResourceType() === "posts" &&
+                    generator.router.getFilter() === "page:false"
+                ) {
                     generator.getUrls().length.should.eql(2);
                 }
 
-                if (generator.router.getResourceType() === 'posts' && generator.router.getFilter() === 'featured:true') {
+                if (
+                    generator.router.getResourceType() === "posts" &&
+                    generator.router.getFilter() === "featured:true"
+                ) {
                     generator.getUrls().length.should.eql(2);
                 }
 
-                if (generator.router.getResourceType() === 'pages') {
+                if (generator.router.getResourceType() === "pages") {
                     generator.getUrls().length.should.eql(1);
                 }
 
-                if (generator.router.getResourceType() === 'tags') {
+                if (generator.router.getResourceType() === "tags") {
                     generator.getUrls().length.should.eql(3);
                 }
 
-                if (generator.router.getResourceType() === 'authors') {
+                if (generator.router.getResourceType() === "authors") {
                     generator.getUrls().length.should.eql(2);
                 }
             });
 
-            let url = urlService.getUrlByResourceId(testUtils.DataGenerator.forKnex.posts[0].id);
-            url.should.eql('/collection/2015/html-ipsum/');
+            let url = urlService.getUrlByResourceId(
+                testUtils.DataGenerator.forKnex.posts[0].id
+            );
+            url.should.eql("/collection/2015/html-ipsum/");
 
-            url = urlService.getUrlByResourceId(testUtils.DataGenerator.forKnex.posts[1].id);
-            url.should.eql('/collection/2015/ghostly-kitchen-sink/');
+            url = urlService.getUrlByResourceId(
+                testUtils.DataGenerator.forKnex.posts[1].id
+            );
+            url.should.eql("/collection/2015/ghostly-kitchen-sink/");
 
             // featured
-            url = urlService.getUrlByResourceId(testUtils.DataGenerator.forKnex.posts[2].id);
-            url.should.eql('/podcast/short-and-sweet/');
+            url = urlService.getUrlByResourceId(
+                testUtils.DataGenerator.forKnex.posts[2].id
+            );
+            url.should.eql("/podcast/short-and-sweet/");
 
-            url = urlService.getUrlByResourceId(testUtils.DataGenerator.forKnex.tags[0].id);
-            url.should.eql('/category/kitchen-sink/');
+            url = urlService.getUrlByResourceId(
+                testUtils.DataGenerator.forKnex.tags[0].id
+            );
+            url.should.eql("/category/kitchen-sink/");
 
-            url = urlService.getUrlByResourceId(testUtils.DataGenerator.forKnex.tags[1].id);
-            url.should.eql('/category/bacon/');
+            url = urlService.getUrlByResourceId(
+                testUtils.DataGenerator.forKnex.tags[1].id
+            );
+            url.should.eql("/category/bacon/");
 
-            url = urlService.getUrlByResourceId(testUtils.DataGenerator.forKnex.tags[2].id);
-            url.should.eql('/category/chorizo/');
+            url = urlService.getUrlByResourceId(
+                testUtils.DataGenerator.forKnex.tags[2].id
+            );
+            url.should.eql("/category/chorizo/");
 
-            url = urlService.getUrlByResourceId(testUtils.DataGenerator.forKnex.tags[3].id);
-            url.should.eql('/404/'); // tags with no posts should not be public
+            url = urlService.getUrlByResourceId(
+                testUtils.DataGenerator.forKnex.tags[3].id
+            );
+            url.should.eql("/404/"); // tags with no posts should not be public
 
-            url = urlService.getUrlByResourceId(testUtils.DataGenerator.forKnex.users[0].id);
-            url.should.eql('/persons/joe-bloggs/');
+            url = urlService.getUrlByResourceId(
+                testUtils.DataGenerator.forKnex.users[0].id
+            );
+            url.should.eql("/persons/joe-bloggs/");
 
-            url = urlService.getUrlByResourceId(testUtils.DataGenerator.forKnex.users[1].id);
-            url.should.eql('/404/'); // users with no posts should not be public
+            url = urlService.getUrlByResourceId(
+                testUtils.DataGenerator.forKnex.users[1].id
+            );
+            url.should.eql("/404/"); // users with no posts should not be public
 
-            url = urlService.getUrlByResourceId(testUtils.DataGenerator.forKnex.users[2].id);
-            url.should.eql('/404/'); // users with no posts should not be public
+            url = urlService.getUrlByResourceId(
+                testUtils.DataGenerator.forKnex.users[2].id
+            );
+            url.should.eql("/404/"); // users with no posts should not be public
 
-            url = urlService.getUrlByResourceId(testUtils.DataGenerator.forKnex.users[3].id);
-            url.should.eql('/persons/slimer-mcectoplasm/');
+            url = urlService.getUrlByResourceId(
+                testUtils.DataGenerator.forKnex.users[3].id
+            );
+            url.should.eql("/persons/slimer-mcectoplasm/");
 
-            url = urlService.getUrlByResourceId(testUtils.DataGenerator.forKnex.users[4].id);
-            url.should.eql('/404/'); // users with no posts should not be public
+            url = urlService.getUrlByResourceId(
+                testUtils.DataGenerator.forKnex.users[4].id
+            );
+            url.should.eql("/404/"); // users with no posts should not be public
         });
     });
 
-    describe('functional: subdirectory', function () {
+    describe("functional: subdirectory", function () {
         let router1;
         let router2;
         let router3;
@@ -419,7 +479,7 @@ describe('Integration: services/url/UrlService', function () {
         let router5;
 
         beforeEach(function (done) {
-            configUtils.set('url', 'http://localhost:2388/blog/');
+            configUtils.set("url", "http://localhost:2388/blog/");
 
             urlService = new UrlService();
 
@@ -429,8 +489,8 @@ describe('Integration: services/url/UrlService', function () {
                 getResourceType: sinon.stub(),
                 getPermalinks: sinon.stub(),
                 toString: function () {
-                    return 'post collection 1';
-                }
+                    return "post collection 1";
+                },
             };
 
             router2 = {
@@ -439,8 +499,8 @@ describe('Integration: services/url/UrlService', function () {
                 getResourceType: sinon.stub(),
                 getPermalinks: sinon.stub(),
                 toString: function () {
-                    return 'post collection 2';
-                }
+                    return "post collection 2";
+                },
             };
 
             router3 = {
@@ -449,8 +509,8 @@ describe('Integration: services/url/UrlService', function () {
                 getResourceType: sinon.stub(),
                 getPermalinks: sinon.stub(),
                 toString: function () {
-                    return 'authors';
-                }
+                    return "authors";
+                },
             };
 
             router4 = {
@@ -459,8 +519,8 @@ describe('Integration: services/url/UrlService', function () {
                 getResourceType: sinon.stub(),
                 getPermalinks: sinon.stub(),
                 toString: function () {
-                    return 'tags';
-                }
+                    return "tags";
+                },
             };
 
             router5 = {
@@ -469,55 +529,55 @@ describe('Integration: services/url/UrlService', function () {
                 getResourceType: sinon.stub(),
                 getPermalinks: sinon.stub(),
                 toString: function () {
-                    return 'static pages';
-                }
+                    return "static pages";
+                },
             };
 
-            router1.getFilter.returns('featured:false');
-            router1.getResourceType.returns('posts');
+            router1.getFilter.returns("featured:false");
+            router1.getResourceType.returns("posts");
             router1.getPermalinks.returns({
                 getValue: function () {
-                    return '/collection/:year/:slug/';
-                }
+                    return "/collection/:year/:slug/";
+                },
             });
 
-            router2.getFilter.returns('featured:true');
-            router2.getResourceType.returns('posts');
+            router2.getFilter.returns("featured:true");
+            router2.getResourceType.returns("posts");
             router2.getPermalinks.returns({
                 getValue: function () {
-                    return '/podcast/:slug/';
-                }
+                    return "/podcast/:slug/";
+                },
             });
 
             router3.getFilter.returns(false);
-            router3.getResourceType.returns('authors');
+            router3.getResourceType.returns("authors");
             router3.getPermalinks.returns({
                 getValue: function () {
-                    return '/persons/:slug/';
-                }
+                    return "/persons/:slug/";
+                },
             });
 
             router4.getFilter.returns(false);
-            router4.getResourceType.returns('tags');
+            router4.getResourceType.returns("tags");
             router4.getPermalinks.returns({
                 getValue: function () {
-                    return '/category/:slug/';
-                }
+                    return "/category/:slug/";
+                },
             });
 
             router5.getFilter.returns(false);
-            router5.getResourceType.returns('pages');
+            router5.getResourceType.returns("pages");
             router5.getPermalinks.returns({
                 getValue: function () {
-                    return '/:slug/';
-                }
+                    return "/:slug/";
+                },
             });
 
-            events.emit('router.created', router1);
-            events.emit('router.created', router2);
-            events.emit('router.created', router3);
-            events.emit('router.created', router4);
-            events.emit('router.created', router5);
+            events.emit("router.created", router1);
+            events.emit("router.created", router2);
+            events.emit("router.created", router3);
+            events.emit("router.created", router4);
+            events.emit("router.created", router5);
 
             // We can't use our url service utils here, because this is a local copy of the urlService, not the singletone
             urlService.init();
@@ -539,7 +599,7 @@ describe('Integration: services/url/UrlService', function () {
             configUtils.restore();
         });
 
-        it('check url generators', function () {
+        it("check url generators", function () {
             urlService.urlGenerators.length.should.eql(5);
             urlService.urlGenerators[0].router.should.eql(router1);
             urlService.urlGenerators[1].router.should.eql(router2);
@@ -548,65 +608,95 @@ describe('Integration: services/url/UrlService', function () {
             urlService.urlGenerators[4].router.should.eql(router5);
         });
 
-        it('getUrl', function () {
+        it("getUrl", function () {
             urlService.urlGenerators.forEach(function (generator) {
-                if (generator.router.getResourceType() === 'posts' && generator.router.getFilter() === 'featured:false') {
+                if (
+                    generator.router.getResourceType() === "posts" &&
+                    generator.router.getFilter() === "featured:false"
+                ) {
                     generator.getUrls().length.should.eql(2);
                 }
 
-                if (generator.router.getResourceType() === 'posts' && generator.router.getFilter() === 'featured:true') {
+                if (
+                    generator.router.getResourceType() === "posts" &&
+                    generator.router.getFilter() === "featured:true"
+                ) {
                     generator.getUrls().length.should.eql(2);
                 }
 
-                if (generator.router.getResourceType() === 'pages') {
+                if (generator.router.getResourceType() === "pages") {
                     generator.getUrls().length.should.eql(1);
                 }
 
-                if (generator.router.getResourceType() === 'tags') {
+                if (generator.router.getResourceType() === "tags") {
                     generator.getUrls().length.should.eql(3);
                 }
 
-                if (generator.router.getResourceType() === 'authors') {
+                if (generator.router.getResourceType() === "authors") {
                     generator.getUrls().length.should.eql(2);
                 }
             });
 
-            let url = urlService.getUrlByResourceId(testUtils.DataGenerator.forKnex.posts[0].id);
-            url.should.eql('/collection/2015/html-ipsum/');
+            let url = urlService.getUrlByResourceId(
+                testUtils.DataGenerator.forKnex.posts[0].id
+            );
+            url.should.eql("/collection/2015/html-ipsum/");
 
-            url = urlService.getUrlByResourceId(testUtils.DataGenerator.forKnex.posts[1].id);
-            url.should.eql('/collection/2015/ghostly-kitchen-sink/');
+            url = urlService.getUrlByResourceId(
+                testUtils.DataGenerator.forKnex.posts[1].id
+            );
+            url.should.eql("/collection/2015/ghostly-kitchen-sink/");
 
             // featured
-            url = urlService.getUrlByResourceId(testUtils.DataGenerator.forKnex.posts[2].id);
-            url.should.eql('/podcast/short-and-sweet/');
+            url = urlService.getUrlByResourceId(
+                testUtils.DataGenerator.forKnex.posts[2].id
+            );
+            url.should.eql("/podcast/short-and-sweet/");
 
-            url = urlService.getUrlByResourceId(testUtils.DataGenerator.forKnex.tags[0].id);
-            url.should.eql('/category/kitchen-sink/');
+            url = urlService.getUrlByResourceId(
+                testUtils.DataGenerator.forKnex.tags[0].id
+            );
+            url.should.eql("/category/kitchen-sink/");
 
-            url = urlService.getUrlByResourceId(testUtils.DataGenerator.forKnex.tags[1].id);
-            url.should.eql('/category/bacon/');
+            url = urlService.getUrlByResourceId(
+                testUtils.DataGenerator.forKnex.tags[1].id
+            );
+            url.should.eql("/category/bacon/");
 
-            url = urlService.getUrlByResourceId(testUtils.DataGenerator.forKnex.tags[2].id);
-            url.should.eql('/category/chorizo/');
+            url = urlService.getUrlByResourceId(
+                testUtils.DataGenerator.forKnex.tags[2].id
+            );
+            url.should.eql("/category/chorizo/");
 
-            url = urlService.getUrlByResourceId(testUtils.DataGenerator.forKnex.tags[3].id);
-            url.should.eql('/404/'); // tags with no posts should not be public
+            url = urlService.getUrlByResourceId(
+                testUtils.DataGenerator.forKnex.tags[3].id
+            );
+            url.should.eql("/404/"); // tags with no posts should not be public
 
-            url = urlService.getUrlByResourceId(testUtils.DataGenerator.forKnex.users[0].id);
-            url.should.eql('/persons/joe-bloggs/');
+            url = urlService.getUrlByResourceId(
+                testUtils.DataGenerator.forKnex.users[0].id
+            );
+            url.should.eql("/persons/joe-bloggs/");
 
-            url = urlService.getUrlByResourceId(testUtils.DataGenerator.forKnex.users[1].id);
-            url.should.eql('/404/'); // users with no posts should not be public
+            url = urlService.getUrlByResourceId(
+                testUtils.DataGenerator.forKnex.users[1].id
+            );
+            url.should.eql("/404/"); // users with no posts should not be public
 
-            url = urlService.getUrlByResourceId(testUtils.DataGenerator.forKnex.users[2].id);
-            url.should.eql('/404/'); // users with no posts should not be public
+            url = urlService.getUrlByResourceId(
+                testUtils.DataGenerator.forKnex.users[2].id
+            );
+            url.should.eql("/404/"); // users with no posts should not be public
 
-            url = urlService.getUrlByResourceId(testUtils.DataGenerator.forKnex.users[3].id);
-            url.should.eql('/persons/slimer-mcectoplasm/');
+            url = urlService.getUrlByResourceId(
+                testUtils.DataGenerator.forKnex.users[3].id
+            );
+            url.should.eql("/persons/slimer-mcectoplasm/");
 
-            url = urlService.getUrlByResourceId(testUtils.DataGenerator.forKnex.users[4].id);
-            url.should.eql('/404/'); // users with no posts should not be public
+            url = urlService.getUrlByResourceId(
+                testUtils.DataGenerator.forKnex.users[4].id
+            );
+            url.should.eql("/404/"); // users with no posts should not be public
         });
     });
 });

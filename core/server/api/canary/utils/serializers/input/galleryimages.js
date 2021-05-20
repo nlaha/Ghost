@@ -1,12 +1,12 @@
 const _ = require("lodash");
 const debug = require("ghost-ignition").debug(
-    "api:canary:utils:serializers:input:posts"
+    "api:canary:utils:serializers:input:galleryimages"
 );
 const mapNQLKeyValues = require("@nexes/nql").utils.mapKeyValues;
+const mobiledoc = require("../../../../../lib/mobiledoc");
 const url = require("./utils/url");
 const slugFilterOrder = require("./utils/slug-filter-order");
 const localUtils = require("../../index");
-const mobiledoc = require("../../../../../lib/mobiledoc");
 const postsMetaSchema = require("../../../../../data/schema").tables.posts_meta;
 
 const replacePageWithType = mapNQLKeyValues({
@@ -21,7 +21,7 @@ const replacePageWithType = mapNQLKeyValues({
         },
         {
             from: true,
-            to: "page",
+            to: "galleryimage",
         },
     ],
 });
@@ -43,7 +43,7 @@ function defaultRelations(frame) {
         return false;
     }
 
-    frame.options.withRelated = ["tags", "authors", "authors.roles", "email"];
+    frame.options.withRelated = ["tags", "authors", "authors.roles"];
 }
 
 function setDefaultOrder(frame) {
@@ -72,7 +72,7 @@ function setDefaultOrder(frame) {
         !frame.options.autoOrder &&
         !includesOrderedRelations
     ) {
-        frame.options.order = "published_at desc";
+        frame.options.order = "title asc";
     }
 }
 
@@ -95,23 +95,23 @@ function defaultFormat(frame) {
 
 function handlePostsMeta(frame) {
     let metaAttrs = _.keys(_.omit(postsMetaSchema, ["id", "post_id"]));
-    let meta = _.pick(frame.data.posts[0], metaAttrs);
-    frame.data.posts[0].posts_meta = meta;
+    let meta = _.pick(frame.data.galleryimages[0], metaAttrs);
+    frame.data.galleryimages[0].posts_meta = meta;
 }
 
 /**
  * CASE:
  *
- * - posts endpoint only returns posts, not pages
+ * - the content api endpoints for galleryimages forces the model layer to return static galleryimages only
  * - we have to enforce the filter
  *
  * @TODO: https://github.com/TryGhost/Ghost/issues/10268
  */
 const forcePageFilter = (frame) => {
     if (frame.options.filter) {
-        frame.options.filter = `(${frame.options.filter})+type:post`;
+        frame.options.filter = `(${frame.options.filter})+type:galleryimage`;
     } else {
-        frame.options.filter = "type:post";
+        frame.options.filter = "type:page";
     }
 };
 
@@ -123,31 +123,14 @@ const forceStatusFilter = (frame) => {
     }
 };
 
-const transformLegacyEmailRecipientFilters = (frame) => {
-    if (frame.options.email_recipient_filter === "free") {
-        frame.options.email_recipient_filter = "status:free";
-    }
-    if (frame.options.email_recipient_filter === "paid") {
-        frame.options.email_recipient_filter = "status:-free";
-    }
-};
-
 module.exports = {
     browse(apiConfig, frame) {
         debug("browse");
 
         forcePageFilter(frame);
 
-        /**
-         * ## current cases:
-         * - context object is empty (functional call, content api access)
-         * - api_key.type == 'content' ? content api access
-         * - user exists? admin api access
-         */
         if (localUtils.isContentAPI(frame)) {
-            // CASE: the content api endpoint for posts should not return mobiledoc
             removeMobiledocFormat(frame);
-
             setDefaultOrder(frame);
             forceVisibilityColumn(frame);
         }
@@ -166,16 +149,8 @@ module.exports = {
 
         forcePageFilter(frame);
 
-        /**
-         * ## current cases:
-         * - context object is empty (functional call, content api access)
-         * - api_key.type == 'content' ? content api access
-         * - user exists? admin api access
-         */
         if (localUtils.isContentAPI(frame)) {
-            // CASE: the content api endpoint for posts should not return mobiledoc
             removeMobiledocFormat(frame);
-
             setDefaultOrder(frame);
             forceVisibilityColumn(frame);
         }
@@ -191,47 +166,46 @@ module.exports = {
         debug("add");
 
         if (_.get(frame, "options.source")) {
-            const html = frame.data.posts[0].html;
+            const html = frame.data.galleryimages[0].html;
 
             if (frame.options.source === "html" && !_.isEmpty(html)) {
-                frame.data.posts[0].mobiledoc = JSON.stringify(
+                frame.data.galleryimages[0].mobiledoc = JSON.stringify(
                     mobiledoc.htmlToMobiledocConverter(html)
                 );
             }
         }
 
-        frame.data.posts[0] = url.forPost(
-            Object.assign({}, frame.data.posts[0]),
+        frame.data.galleryimages[0] = url.forPost(
+            Object.assign({}, frame.data.galleryimages[0]),
             frame.options
         );
 
-        // @NOTE: force adding post
+        // @NOTE: force storing page
         if (options.add) {
-            frame.data.posts[0].type = "post";
+            frame.data.galleryimages[0].type = "galleryimage";
         }
 
         // CASE: Transform short to long format
-        if (frame.data.posts[0].authors) {
-            frame.data.posts[0].authors.forEach((author, index) => {
+        if (frame.data.galleryimages[0].authors) {
+            frame.data.galleryimages[0].authors.forEach((author, index) => {
                 if (_.isString(author)) {
-                    frame.data.posts[0].authors[index] = {
+                    frame.data.galleryimages[0].authors[index] = {
                         email: author,
                     };
                 }
             });
         }
 
-        if (frame.data.posts[0].tags) {
-            frame.data.posts[0].tags.forEach((tag, index) => {
+        if (frame.data.galleryimages[0].tags) {
+            frame.data.galleryimages[0].tags.forEach((tag, index) => {
                 if (_.isString(tag)) {
-                    frame.data.posts[0].tags[index] = {
+                    frame.data.galleryimages[0].tags[index] = {
                         name: tag,
                     };
                 }
             });
         }
 
-        transformLegacyEmailRecipientFilters(frame);
         handlePostsMeta(frame);
         defaultFormat(frame);
         defaultRelations(frame);
@@ -239,9 +213,8 @@ module.exports = {
 
     edit(apiConfig, frame) {
         debug("edit");
-        this.add(apiConfig, frame, { add: false });
+        this.add(...arguments, { add: false });
 
-        transformLegacyEmailRecipientFilters(frame);
         handlePostsMeta(frame);
         forceStatusFilter(frame);
         forcePageFilter(frame);
@@ -249,9 +222,10 @@ module.exports = {
 
     destroy(apiConfig, frame) {
         debug("destroy");
+
         frame.options.destroyBy = {
             id: frame.options.id,
-            type: "post",
+            type: "galleryimage",
         };
 
         defaultFormat(frame);

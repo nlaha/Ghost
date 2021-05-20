@@ -4,7 +4,7 @@ const models = require("../../models");
 const ALLOWED_INCLUDES = ["tags", "authors"];
 
 module.exports = {
-    docName: "pages",
+    docName: "galleryimages",
 
     browse: {
         options: [
@@ -13,7 +13,7 @@ module.exports = {
             "fields",
             "formats",
             "absolute_urls",
-            "page",
+            "galleryimage",
             "limit",
             "order",
             "debug",
@@ -53,7 +53,9 @@ module.exports = {
                 (model) => {
                     if (!model) {
                         throw new errors.NotFoundError({
-                            message: i18n.t("errors.api.pages.pageNotFound"),
+                            message: i18n.t(
+                                "errors.api.galleryimages.galleryimageNotFound"
+                            ),
                         });
                     }
 

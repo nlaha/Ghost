@@ -4,8 +4,8 @@
             "name": "Product",
             "entries": [
                 {
-                    "name":             "Default Product",
-                    "slug":             "default-product"
+                    "name": "Default Product",
+                    "slug": "default-product"
                 }
             ]
         },
@@ -13,11 +13,11 @@
             "name": "Tag",
             "entries": [
                 {
-                    "name":             "Getting Started",
-                    "slug":             "getting-started",
-                    "description":      null,
-                    "parent_id":        null,
-                    "meta_title":       null,
+                    "name": "Getting Started",
+                    "slug": "getting-started",
+                    "description": null,
+                    "parent_id": null,
+                    "meta_title": null,
                     "meta_description": null
                 }
             ]
@@ -504,7 +504,9 @@
                     "name": "Ghost",
                     "email": "ghost-author@example.com",
                     "status": "active",
-                    "roles": ["Contributor"],
+                    "roles": [
+                        "Contributor"
+                    ],
                     "twitter": "ghost",
                     "facebook": "ghost",
                     "location": "The Internet",
@@ -586,7 +588,6 @@
                     "published_by": "5951f5fca366002ebd5dbef7",
                     "author_id": "5951f5fca366002ebd5dbef7"
                 },
-
                 {
                     "title": "Customizing your brand and design settings",
                     "slug": "design",
@@ -648,7 +649,7 @@
                     "mobiledoc": "{\"version\":\"0.3.1\",\"atoms\":[],\"cards\":[],\"markups\":[],\"sections\":[[1,\"p\",[[0,[],0,\"Wondering how Ghost fares when it comes to privacy and GDPR rules? Good news: Ghost does not use any tracking cookies of any kind.\"]]],[1,\"p\",[[0,[],0,\"You can integrate any products, services, ads or integrations with Ghost yourself if you want to, but it's always a good idea to disclose how subscriber data will be used by putting together a privacy page.\"]]]],\"ghostVersion\":\"4.0\"}",
                     "feature_image": null,
                     "featured": false,
-                    "type": "page",
+                    "type": "galleryimage",
                     "status": "published",
                     "visibility": "public",
                     "created_by": "5951f5fca366002ebd5dbef7",
@@ -661,7 +662,7 @@
                     "mobiledoc": "{\"version\":\"0.3.1\",\"atoms\":[],\"cards\":[],\"markups\":[[\"a\",[\"href\",\"https://github.com/tryghost\"]],[\"a\",[\"href\",\"https://github.com/sponsors/TryGhost\"]],[\"a\",[\"href\",\"https://opencollective.com/ghost\"]],[\"strong\"]],\"sections\":[[1,\"p\",[[0,[],0,\"Oh hey, you clicked every link of our starter content and even clicked this small link in the footer! If you like Ghost and you're enjoying the product so far, we'd hugely appreciate your support in any way you care to show it.\"]]],[1,\"p\",[[0,[],0,\"Ghost is a non-profit organization, and we give away all our intellectual property as open source software. If you believe in what we do, there are a number of ways you can give us a hand, and we hugely appreciate all of them:\"]]],[3,\"ul\",[[[0,[],0,\"Contribute code via \"],[0,[0],1,\"GitHub\"]],[[0,[],0,\"Contribute financially via \"],[0,[1],1,\"GitHub Sponsors\"]],[[0,[],0,\"Contribute financially via \"],[0,[2],1,\"Open Collective\"]],[[0,[],0,\"Contribute reviews via \"],[0,[3],1,\"writing a blog post\"]],[[0,[],0,\"Contribute good vibes via \"],[0,[3],1,\"telling your friends\"],[0,[],0,\" about us\"]]]],[1,\"p\",[[0,[],0,\"Thanks for checking us out!\"]]]],\"ghostVersion\":\"4.0\"}",
                     "feature_image": null,
                     "featured": false,
-                    "type": "page",
+                    "type": "galleryimage",
                     "status": "published",
                     "visibility": "public",
                     "created_by": "5951f5fca366002ebd5dbef7",
@@ -678,21 +679,35 @@
                     "name": "Zapier",
                     "description": "Built-in Zapier integration",
                     "type": "builtin",
-                    "api_keys": [{"type": "admin"}]
+                    "api_keys": [
+                        {
+                            "type": "admin"
+                        }
+                    ]
                 },
                 {
                     "slug": "ghost-backup",
                     "name": "Ghost Backup",
                     "description": "Internal DB Backup integration",
                     "type": "internal",
-                    "api_keys": [{"type": "admin", "role": "DB Backup Integration"}]
+                    "api_keys": [
+                        {
+                            "type": "admin",
+                            "role": "DB Backup Integration"
+                        }
+                    ]
                 },
                 {
                     "slug": "ghost-scheduler",
                     "name": "Ghost Scheduler",
                     "description": "Internal Scheduler integration",
                     "type": "internal",
-                    "api_keys": [{"type": "admin", "role": "Scheduler Integration"}]
+                    "api_keys": [
+                        {
+                            "type": "admin",
+                            "role": "Scheduler Integration"
+                        }
+                    ]
                 }
             ]
         }
@@ -706,7 +721,10 @@
             },
             "to": {
                 "model": "Permission",
-                "match": ["object_type", "action_type"]
+                "match": [
+                    "object_type",
+                    "action_type"
+                ]
             },
             "entries": {
                 "Administrator": {
@@ -763,43 +781,98 @@
                 "Editor": {
                     "notification": "all",
                     "post": "all",
-                    "setting": ["browse", "read"],
+                    "setting": [
+                        "browse",
+                        "read"
+                    ],
                     "slug": "all",
                     "tag": "all",
                     "user": "all",
                     "role": "all",
                     "invite": "all",
-                    "theme": ["browse"],
+                    "theme": [
+                        "browse"
+                    ],
                     "email_preview": "all",
                     "email": "all",
                     "snippet": "all",
-                    "label": ["browse", "read"],
-                    "product": ["browse", "read"]
+                    "label": [
+                        "browse",
+                        "read"
+                    ],
+                    "product": [
+                        "browse",
+                        "read"
+                    ]
                 },
                 "Author": {
-                    "post": ["browse", "read", "add"],
-                    "setting": ["browse", "read"],
+                    "post": [
+                        "browse",
+                        "read",
+                        "add"
+                    ],
+                    "setting": [
+                        "browse",
+                        "read"
+                    ],
                     "slug": "all",
-                    "tag": ["browse", "read", "add"],
-                    "user": ["browse", "read"],
-                    "role": ["browse"],
-                    "theme": ["browse"],
+                    "tag": [
+                        "browse",
+                        "read",
+                        "add"
+                    ],
+                    "user": [
+                        "browse",
+                        "read"
+                    ],
+                    "role": [
+                        "browse"
+                    ],
+                    "theme": [
+                        "browse"
+                    ],
                     "email_preview": "read",
                     "email": "read",
-                    "snippet": ["browse", "read"],
-                    "product": ["browse", "read"]
+                    "snippet": [
+                        "browse",
+                        "read"
+                    ],
+                    "product": [
+                        "browse",
+                        "read"
+                    ]
                 },
                 "Contributor": {
-                    "post": ["browse", "read", "add"],
-                    "setting": ["browse", "read"],
+                    "post": [
+                        "browse",
+                        "read",
+                        "add"
+                    ],
+                    "setting": [
+                        "browse",
+                        "read"
+                    ],
                     "slug": "all",
-                    "tag": ["browse", "read"],
-                    "user": ["browse", "read"],
-                    "role": ["browse"],
-                    "theme": ["browse"],
+                    "tag": [
+                        "browse",
+                        "read"
+                    ],
+                    "user": [
+                        "browse",
+                        "read"
+                    ],
+                    "role": [
+                        "browse"
+                    ],
+                    "theme": [
+                        "browse"
+                    ],
                     "email_preview": "read",
                     "email": "read",
-                    "snippet": ["browse", "read"]
+                    "snippet": [
+                        "browse",
+                        "read"
+                    ]
                 }
             }
         },
@@ -814,13 +887,27 @@
                 "match": "name"
             },
             "entries": {
-                "integrations": ["Getting Started"],
-                "grow": ["Getting Started"],
-                "design": ["Getting Started"],
-                "write": ["Getting Started"],
-                "welcome": ["Getting Started"],
-                "portal": ["Getting Started"],
-                "sell": ["Getting Started"]
+                "integrations": [
+                    "Getting Started"
+                ],
+                "grow": [
+                    "Getting Started"
+                ],
+                "design": [
+                    "Getting Started"
+                ],
+                "write": [
+                    "Getting Started"
+                ],
+                "welcome": [
+                    "Getting Started"
+                ],
+                "portal": [
+                    "Getting Started"
+                ],
+                "sell": [
+                    "Getting Started"
+                ]
             }
         },
         {
@@ -834,7 +921,9 @@
                 "match": "name"
             },
             "entries": {
-                "1": ["Owner"]
+                "1": [
+                    "Owner"
+                ]
             }
         }
     ]

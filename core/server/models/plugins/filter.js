@@ -1,79 +1,91 @@
-const debug = require('ghost-ignition').debug('models:plugins:filter');
-const i18n = require('../../../shared/i18n');
-const errors = require('@tryghost/errors');
+const debug = require("ghost-ignition").debug("models:plugins:filter");
+const i18n = require("../../../shared/i18n");
+const errors = require("@tryghost/errors");
 
 const RELATIONS = {
     tags: {
-        tableName: 'tags',
-        type: 'manyToMany',
-        joinTable: 'posts_tags',
-        joinFrom: 'post_id',
-        joinTo: 'tag_id'
+        tableName: "tags",
+        type: "manyToMany",
+        joinTable: "posts_tags",
+        joinFrom: "post_id",
+        joinTo: "tag_id",
     },
     authors: {
-        tableName: 'users',
-        tableNameAs: 'authors',
-        type: 'manyToMany',
-        joinTable: 'posts_authors',
-        joinFrom: 'post_id',
-        joinTo: 'author_id'
+        tableName: "users",
+        tableNameAs: "authors",
+        type: "manyToMany",
+        joinTable: "posts_authors",
+        joinFrom: "post_id",
+        joinTo: "author_id",
     },
     labels: {
-        tableName: 'labels',
-        type: 'manyToMany',
-        joinTable: 'members_labels',
-        joinFrom: 'member_id',
-        joinTo: 'label_id'
+        tableName: "labels",
+        type: "manyToMany",
+        joinTable: "members_labels",
+        joinFrom: "member_id",
+        joinTo: "label_id",
     },
     products: {
-        tableName: 'products',
-        type: 'manyToMany',
-        joinTable: 'members_products',
-        joinFrom: 'member_id',
-        joinTo: 'product_id'
+        tableName: "products",
+        type: "manyToMany",
+        joinTable: "members_products",
+        joinFrom: "member_id",
+        joinTo: "product_id",
     },
     posts_meta: {
-        tableName: 'posts_meta',
-        type: 'oneToOne',
-        joinFrom: 'post_id'
-    }
+        tableName: "posts_meta",
+        type: "oneToOne",
+        joinFrom: "post_id",
+    },
 };
 
 const EXPANSIONS = {
-    posts: [{
-        key: 'primary_tag',
-        replacement: 'tags.slug',
-        expansion: 'posts_tags.sort_order:0+tags.visibility:public'
-    }, {
-        key: 'primary_author',
-        replacement: 'authors.slug',
-        expansion: 'posts_authors.sort_order:0+authors.visibility:public'
-    }, {
-        key: 'authors',
-        replacement: 'authors.slug'
-    }, {
-        key: 'author',
-        replacement: 'authors.slug'
-    }, {
-        key: 'tag',
-        replacement: 'tags.slug'
-    }, {
-        key: 'tags',
-        replacement: 'tags.slug'
-    }],
-    members: [{
-        key: 'label',
-        replacement: 'labels.slug'
-    }, {
-        key: 'labels',
-        replacement: 'labels.slug'
-    }, {
-        key: 'product',
-        replacement: 'products.slug'
-    }, {
-        key: 'products',
-        replacement: 'products.slug'
-    }]
+    posts: [
+        {
+            key: "primary_tag",
+            replacement: "tags.slug",
+            expansion: "posts_tags.sort_order:0+tags.visibility:public",
+        },
+        {
+            key: "primary_author",
+            replacement: "authors.slug",
+            expansion: "posts_authors.sort_order:0+authors.visibility:public",
+        },
+        {
+            key: "authors",
+            replacement: "authors.slug",
+        },
+        {
+            key: "author",
+            replacement: "authors.slug",
+        },
+        {
+            key: "tag",
+            replacement: "tags.slug",
+        },
+        {
+            key: "tags",
+            replacement: "tags.slug",
+        },
+    ],
+    members: [
+        {
+            key: "label",
+            replacement: "labels.slug",
+        },
+        {
+            key: "labels",
+            replacement: "labels.slug",
+        },
+        {
+            key: "product",
+            replacement: "products.slug",
+        },
+        {
+            key: "products",
+            replacement: "products.slug",
+        },
+    ],
 };
 
 const filter = function filter(Bookshelf) {
@@ -89,8 +101,10 @@ const filter = function filter(Bookshelf) {
          * Method which makes the necessary query builder calls (through knex) for the filters set on this model
          * instance.
          */
-        applyDefaultAndCustomFilters: function applyDefaultAndCustomFilters(options) {
-            const nql = require('@nexes/nql');
+        applyDefaultAndCustomFilters: function applyDefaultAndCustomFilters(
+            options
+        ) {
+            const nql = require("@nexes/nql");
 
             const expansions = [];
 
@@ -108,10 +122,10 @@ const filter = function filter(Bookshelf) {
             let defaults = this.defaultFilters(options);
             let transformer = options.mongoTransformer;
 
-            debug('custom', custom);
-            debug('extra', extra);
-            debug('enforced', overrides);
-            debug('default', defaults);
+            debug("custom", custom);
+            debug("extra", extra);
+            debug("enforced", overrides);
+            debug("default", defaults);
 
             if (extra) {
                 if (custom) {
@@ -128,16 +142,18 @@ const filter = function filter(Bookshelf) {
                         expansions: expansions,
                         overrides: overrides,
                         defaults: defaults,
-                        transformer: transformer
+                        transformer: transformer,
                     }).querySQL(qb);
                 });
             } catch (err) {
                 throw new errors.BadRequestError({
-                    message: i18n.t('errors.models.plugins.filter.errorParsing'),
-                    err: err
+                    message: i18n.t(
+                        "errors.models.plugins.filter.errorParsing"
+                    ),
+                    err: err,
                 });
             }
-        }
+        },
     });
 
     Bookshelf.Model = Model;

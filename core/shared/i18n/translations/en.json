@@ -366,6 +366,10 @@
                 "pageNotFound": "Page not found.",
                 "invalidVisibilityFilter": "Invalid filter in visibility property"
             },
+            "galleryimages": {
+                "galleryimageNotFound": "Page not found.",
+                "invalidVisibilityFilter": "Invalid filter in visibility property"
+            },
             "job": {
                 "notFound": "Job not found.",
                 "publishInThePast": "Use the force flag to publish a post in the past."

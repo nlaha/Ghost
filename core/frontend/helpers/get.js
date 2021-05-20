@@ -1,32 +1,42 @@
 // # Get Helper
 // Usage: `{{#get "posts" limit="5"}}`, `{{#get "tags" limit="all"}}`
 // Fetches data from the API
-const {config, logging, errors, i18n, hbs, api} = require('../services/proxy');
-const _ = require('lodash');
-const Promise = require('bluebird');
-const jsonpath = require('jsonpath');
+const {
+    config,
+    logging,
+    errors,
+    i18n,
+    hbs,
+    api,
+} = require("../services/proxy");
+const _ = require("lodash");
+const Promise = require("bluebird");
+const jsonpath = require("jsonpath");
 
 const createFrame = hbs.handlebars.createFrame;
 
 const RESOURCES = {
     posts: {
-        alias: 'postsPublic'
+        alias: "postsPublic",
     },
     tags: {
-        alias: 'tagsPublic'
+        alias: "tagsPublic",
     },
     pages: {
-        alias: 'pagesPublic'
+        alias: "pagesPublic",
+    },
+    galleryimages: {
+        alias: "galleryimagesPublic",
     },
     authors: {
-        alias: 'authorsPublic'
-    }
+        alias: "authorsPublic",
+    },
 };
 
 // Short forms of paths which we should understand
 const pathAliases = {
-    'post.tags': 'post.tags[*].slug',
-    'post.author': 'post.author.slug'
+    "post.tags": "post.tags[*].slug",
+    "post.author": "post.author.slug",
 };
 
 /**
@@ -63,9 +73,9 @@ function resolvePaths(globals, data, value) {
         // Handle aliases
         path = pathAliases[path] ? pathAliases[path] : path;
         // Handle Handlebars .[] style arrays
-        path = path.replace(/\.\[/g, '[');
+        path = path.replace(/\.\[/g, "[");
 
-        if (path.charAt(0) === '@') {
+        if (path.charAt(0) === "@") {
             result = jsonpath.query(globals, path.substr(1));
         } else {
             // Do the query, which always returns an array of matches
@@ -79,7 +89,7 @@ function resolvePaths(globals, data, value) {
         }
 
         // Concatenate the results with a comma, handles common case of multiple tag slugs
-        return result.join(',');
+        return result.join(",");
     });
 
     return value;
@@ -115,68 +125,75 @@ module.exports = function get(resource, options) {
     const self = this;
     const start = Date.now();
     const data = createFrame(options.data);
-    const ghostGlobals = _.omit(data, ['_parent', 'root']);
-    const apiVersion = _.get(data, 'root._locals.apiVersion');
+    const ghostGlobals = _.omit(data, ["_parent", "root"]);
+    const apiVersion = _.get(data, "root._locals.apiVersion");
     let apiOptions = options.hash;
     let returnedRowsCount;
 
     if (!options.fn) {
-        data.error = i18n.t('warnings.helpers.mustBeCalledAsBlock', {helperName: 'get'});
+        data.error = i18n.t("warnings.helpers.mustBeCalledAsBlock", {
+            helperName: "get",
+        });
         logging.warn(data.error);
         return Promise.resolve();
     }
 
     if (!RESOURCES[resource]) {
-        data.error = i18n.t('warnings.helpers.get.invalidResource');
+        data.error = i18n.t("warnings.helpers.get.invalidResource");
         logging.warn(data.error);
-        return Promise.resolve(options.inverse(self, {data: data}));
+        return Promise.resolve(options.inverse(self, { data: data }));
     }
 
     const controllerName = RESOURCES[resource].alias;
     const controller = api[apiVersion][controllerName];
-    const action = isBrowse(apiOptions) ? 'browse' : 'read';
+    const action = isBrowse(apiOptions) ? "browse" : "read";
 
     // Parse the options we're going to pass to the API
     apiOptions = parseOptions(ghostGlobals, this, apiOptions);
 
     // @TODO: https://github.com/TryGhost/Ghost/issues/10548
-    return controller[action](apiOptions).then(function success(result) {
-        let blockParams;
+    return controller[action](apiOptions)
+        .then(function success(result) {
+            let blockParams;
 
-        // used for logging details of slow requests
-        returnedRowsCount = result[resource] && result[resource].length;
+            // used for logging details of slow requests
+            returnedRowsCount = result[resource] && result[resource].length;
 
-        // block params allows the theme developer to name the data using something like
-        // `{{#get "posts" as |result pageInfo|}}`
-        blockParams = [result[resource]];
-        if (result.meta && result.meta.pagination) {
-            result.pagination = result.meta.pagination;
-            blockParams.push(result.meta.pagination);
-        }
+            // block params allows the theme developer to name the data using something like
+            // `{{#get "posts" as |result pageInfo|}}`
+            blockParams = [result[resource]];
+            if (result.meta && result.meta.pagination) {
+                result.pagination = result.meta.pagination;
+                blockParams.push(result.meta.pagination);
+            }
 
-        // Call the main template function
-        return options.fn(result, {
-            data: data,
-            blockParams: blockParams
+            // Call the main template function
+            return options.fn(result, {
+                data: data,
+                blockParams: blockParams,
+            });
+        })
+        .catch(function error(err) {
+            logging.error(err);
+            data.error = err.message;
+            return options.inverse(self, { data: data });
+        })
+        .finally(function () {
+            const totalMs = Date.now() - start;
+            const logLevel = config.get("logging:slowHelper:level");
+            const threshold = config.get("logging:slowHelper:threshold");
+            if (totalMs > threshold) {
+                logging[logLevel](
+                    new errors.HelperWarning({
+                        message: `{{#get}} helper took ${totalMs}ms to complete`,
+                        code: "SLOW_GET_HELPER",
+                        errorDetails: {
+                            api: `${apiVersion}.${controllerName}.${action}`,
+                            apiOptions,
+                            returnedRows: returnedRowsCount,
+                        },
+                    })
+                );
+            }
         });
-    }).catch(function error(err) {
-        logging.error(err);
-        data.error = err.message;
-        return options.inverse(self, {data: data});
-    }).finally(function () {
-        const totalMs = Date.now() - start;
-        const logLevel = config.get('logging:slowHelper:level');
-        const threshold = config.get('logging:slowHelper:threshold');
-        if (totalMs > threshold) {
-            logging[logLevel](new errors.HelperWarning({
-                message: `{{#get}} helper took ${totalMs}ms to complete`,
-                code: 'SLOW_GET_HELPER',
-                errorDetails: {
-                    api: `${apiVersion}.${controllerName}.${action}`,
-                    apiOptions,
-                    returnedRows: returnedRowsCount
-                }
-            }));
-        }
-    });
 };

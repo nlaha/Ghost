@@ -1,10 +1,12 @@
-const _ = require('lodash');
-const debug = require('ghost-ignition').debug('services:routing:controllers:channel');
-const i18n = require('../../../../shared/i18n');
-const errors = require('@tryghost/errors');
-const security = require('@tryghost/security');
-const themeEngine = require('../../theme-engine');
-const helpers = require('../helpers');
+const _ = require("lodash");
+const debug = require("ghost-ignition").debug(
+    "services:routing:controllers:channel"
+);
+const i18n = require("../../../../shared/i18n");
+const errors = require("@tryghost/errors");
+const security = require("@tryghost/security");
+const themeEngine = require("../../theme-engine");
+const helpers = require("../helpers");
 
 /**
  * @description Channel controller.
@@ -17,11 +19,13 @@ const helpers = require('../helpers');
  * @returns {Promise}
  */
 module.exports = function channelController(req, res, next) {
-    debug('channelController', req.params, res.routerOptions);
+    debug("channelController", req.params, res.routerOptions);
 
     const pathOptions = {
         page: req.params.page !== undefined ? req.params.page : 1,
-        slug: req.params.slug ? security.string.safe(req.params.slug) : undefined
+        slug: req.params.slug
+            ? security.string.safe(req.params.slug)
+            : undefined,
     };
 
     if (pathOptions.page) {
@@ -31,14 +35,16 @@ module.exports = function channelController(req, res, next) {
             themeEngine.getActive().updateTemplateOptions({
                 data: {
                     config: {
-                        posts_per_page: res.routerOptions.limit
-                    }
-                }
+                        posts_per_page: res.routerOptions.limit,
+                    },
+                },
             });
 
             pathOptions.limit = res.routerOptions.limit;
         } else {
-            const postsPerPage = parseInt(themeEngine.getActive().config('posts_per_page'));
+            const postsPerPage = parseInt(
+                themeEngine.getActive().config("posts_per_page")
+            );
 
             if (!isNaN(postsPerPage) && postsPerPage > 0) {
                 pathOptions.limit = postsPerPage;
@@ -46,13 +52,16 @@ module.exports = function channelController(req, res, next) {
         }
     }
 
-    return helpers.fetchData(pathOptions, res.routerOptions, res.locals)
+    return helpers
+        .fetchData(pathOptions, res.routerOptions, res.locals)
         .then(function handleResult(result) {
             // CASE: requested page is greater than number of pages we have
             if (pathOptions.page > result.meta.pagination.pages) {
-                return next(new errors.NotFoundError({
-                    message: i18n.t('errors.errors.pageNotFound')
-                }));
+                return next(
+                    new errors.NotFoundError({
+                        message: i18n.t("errors.errors.pageNotFound"),
+                    })
+                );
             }
 
             // Format data 1
