@@ -1,5 +1,5 @@
 {
-    "url": "japaneseartswords.nlaha.com",
+    "url": "https://japaneseartswords.nlaha.com",
     "enableDeveloperExperiments": true,
     "database": {
         "client": "sqlite3",
