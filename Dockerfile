@@ -36,7 +36,9 @@ RUN set -eux; \
 RUN git clone --recurse-submodules https://github.com/nlaha/Ghost "$GHOST_INSTALL"; exit 0
 
 RUN set -eux; \
-    su-exec yarn install; \
+    yarn global add knex-migrator grunt-cli ember-cli; \
+    yarn setup; \
+    grunt prod; \ 
     # make a config.json symlink for NODE_ENV=development (and sanity check that it's correct)
     su-exec node ln -s config.production.json "$GHOST_INSTALL/config.development.json"; \
     readlink -f "$GHOST_INSTALL/config.development.json"; \
