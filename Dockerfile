@@ -1,9 +1,8 @@
 FROM node:12.18-alpine
+ENV NODE_ENV=production
 WORKDIR /usr/src/app
 COPY ["package.json", "package-lock.json*", "npm-shrinkwrap.json*", "./"]
-RUN yarn global add knex-migrator grunt-cli ember-cli
-RUN npm install && mv node_modules ../
-ENV NODE_ENV=production
+RUN npm install --production --silent && mv node_modules ../
 COPY . .
 EXPOSE 2368
 CMD ["npm", "start"]
