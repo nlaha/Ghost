@@ -4,7 +4,7 @@
 	branch = main
 [submodule "core/client"]
 	path = core/client
-	url = ../../TryGhost/Admin.git
+	url = https://github.com/nlaha/Admin
 	branch = main
 [submodule "bar1"]
 	branch = branch1
