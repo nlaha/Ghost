@@ -7,14 +7,14 @@
  **/
 
 // Don't allow NODE_ENV to be null
-process.env.NODE_ENV = process.env.NODE_ENV || 'development';
+process.env.NODE_ENV = process.env.NODE_ENV || "development";
 
 const argv = process.argv;
 const mode = argv[2];
 
 // Switch between boot modes
 switch (mode) {
-default:
-    // New boot sequence
-    require('./core/boot')();
+    default:
+        // New boot sequence
+        require("./core/boot")();
 }
