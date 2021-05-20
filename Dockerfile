@@ -31,7 +31,7 @@ RUN set -eux; \
     # Tell Ghost to listen on all ips and not prompt for additional configuration
     cd "$GHOST_INSTALL";
 
-RUN git clone --recurse-submodules https://github.com/nlaha/Ghost "$GHOST_INSTALL"; exit 0
+RUN git clone --recurse-submodules https://github.com/nlaha/Ghost "$GHOST_INSTALL";
 
 RUN set -eux; \
     cd "$GHOST_INSTALL"; \
