@@ -19,6 +19,9 @@ ENV GHOST_CLI_VERSION 1.17.1
 RUN set -eux; \
     npm cache clean --force
 
+RUN apk update
+RUN apk add git
+
 ENV GHOST_INSTALL /var/lib/ghost
 
 ENV GHOST_VERSION 4.5.0
