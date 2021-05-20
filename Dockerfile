@@ -35,11 +35,10 @@ RUN git clone --recurse-submodules https://github.com/nlaha/Ghost "$GHOST_INSTAL
 
 RUN set -eux; \
     cd "$GHOST_INSTALL"; \
-    yarn global add knex-migrator grunt-cli ember-cli; \
-    npm install knex-migrator grunt-cli ember-cli; \
-    npm install; \
-    yarn setup; \
-    grunt prod; \ 
+    su-exec yarn global add knex-migrator grunt-cli ember-cli; \
+    su-exec npm install knex-migrator grunt-cli ember-cli; \
+    su-exec yarn setup; \
+    su-exec grunt prod; \ 
     # make a config.json symlink for NODE_ENV=development (and sanity check that it's correct)
     # force install "sqlite3" manually since it's an optional dependency of "ghost"
     # (which means that if it fails to install, like on ARM/ppc64le/s390x, the failure will be silently ignored and thus turn into a runtime error instead)
