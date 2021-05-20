@@ -1,7 +1,7 @@
 {
     "url": "http://localhost:2368",
     "server": {
-        "host": "127.0.0.1",
+        "host": "0.0.0.0",
         "port": 2368,
         "shutdownTimeout": 60000
     },
@@ -43,7 +43,9 @@
             "period": "1d",
             "count": 10
         },
-        "transports": ["stdout"],
+        "transports": [
+            "stdout"
+        ],
         "slowHelper": {
             "level": "warn",
             "threshold": 200
@@ -65,19 +67,19 @@
             "minWait": 3600000,
             "maxWait": 3600000,
             "lifetime": 3600,
-            "freeRetries":4
+            "freeRetries": 4
         },
         "global_block": {
             "minWait": 3600000,
             "maxWait": 3600000,
             "lifetime": 3600,
-            "freeRetries":99
+            "freeRetries": 99
         },
         "private_block": {
             "minWait": 3600000,
             "maxWait": 3600000,
             "lifetime": 3600,
-            "freeRetries":99
+            "freeRetries": 99
         },
         "content_api_key": {
             "minWait": 3600000,
