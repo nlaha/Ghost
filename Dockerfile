@@ -33,9 +33,10 @@ RUN set -eux; \
     # Tell Ghost to listen on all ips and not prompt for additional configuration
     cd "$GHOST_INSTALL";
 
-RUN git clone --recurse-submodules https://github.com/nlaha/Ghost .; exit 0
+RUN git clone --recurse-submodules https://github.com/nlaha/Ghost; exit 0
 
 RUN set -eux; \
+    su-exec mv Ghost/* ./* \
     su-exec yarn install \
     # make a config.json symlink for NODE_ENV=development (and sanity check that it's correct)
     su-exec node ln -s config.production.json "$GHOST_INSTALL/config.development.json"; \
